@@ -1,42 +1,50 @@
-# FoxMountain.rbx
+# M-Bank
 
-A player-run banking system for a Roblox server — bank accounts, jobs with
-real-time shifts, a car marketplace, and a house marketplace — built with
-Next.js and deployed on Vercel.
+The bank for our Minecraft server. Players open an account with their
+Minecraft username and must lock it with a password (4–8 characters).
+Built with Next.js and deployed on Vercel, with accounts stored in Redis
+(Upstash) from the Vercel Marketplace.
 
-This started as a single-file Claude Artifact. It's now a normal Next.js
-app so it can live on GitHub and deploy through Vercel like any other
-project. The one thing that changed under the hood: shared state (accounts,
-jobs, car and house listings) used to live inside the page itself; now it
-lives in a small key-value store (Redis, via the Upstash integration on
-Vercel's Marketplace) behind one API route, and the page polls that API
-every few seconds so every visitor sees the same data.
+> This repo previously held FoxMountain.rbx (a Roblox server bank). That
+> version is still in the git history if you ever need it.
+
+## What works today
+
+- **Open an account** — Minecraft username (3–16 letters, numbers or `_`,
+  one account per name, case-insensitive) and a mandatory password, 4–8
+  characters, typed twice.
+- **Sign in / sign out** — a signed, HTTP-only session cookie that lasts 7 days.
+- **Account page** — player face, balance (in emeralds, starts at 0),
+  account number (`MB-1234-5678`), date opened.
+- **Brute-force protection** — 5 wrong passwords in a row locks the account
+  for 10 minutes. Short passwords are easy to guess, so this matters.
+- Passwords are hashed with scrypt; the plain password is never stored.
 
 ## How it's put together
 
-- `app/page.js` — renders an empty `<div id="app">` and loads `public/app.js`.
-- `public/app.js` — the whole client app: builds every screen as HTML
-  strings and re-renders on any state change (no framework, no build step
-  for this file — it's served as a static asset).
-- `app/api/state/route.js` — `GET` returns the shared state, `POST` merges
-  a patch (e.g. `{ "accounts": [...] }`) into it and returns the result.
-  Backed by `@upstash/redis`.
-- `app/globals.css` — all the site's styling.
+| Path | What it does |
+| --- | --- |
+| `app/page.js`, `app/AuthPanel.js` | Home page with the Open account / Sign in forms |
+| `app/account/` | The signed-in account page |
+| `app/api/accounts/route.js` | `POST` — open an account |
+| `app/api/session/route.js` | `POST` — sign in, `DELETE` — sign out |
+| `lib/auth.js` | Validation rules, password hashing, session cookie |
+| `lib/store.js` | Redis access (falls back to memory in local dev) |
+
+Redis keys: `mbank:account:<username>` holds each account,
+`mbank:usernames` is the set of all usernames.
 
 ## Deploying
 
-1. **Push this repo to GitHub** (you're likely doing that right now).
-2. **Import it in Vercel** (or it may already be linked, if Claude set that
-   up for you) — vercel.com → Add New → Project → select this repo.
-3. **Add shared storage.** In the new project's dashboard: Storage → Create
-   Database → pick **Redis** (powered by Upstash) → connect it to this
-   project. That's it — no code changes needed, the API route reads the
-   connection details from whichever environment variables Vercel sets
-   automatically for that integration.
-4. **Redeploy** (Vercel will usually do this automatically once the
-   database is connected; if not, trigger a redeploy from the Deployments
-   tab). Once it's live, opening the site should show an empty bank/job/car
-   list instead of a storage warning banner.
+1. Push to `main` on GitHub.
+2. In Vercel: **Add New → Project → import this repo** (framework: Next.js).
+3. In the project: **Storage → Create Database → Redis (Upstash)** and
+   connect it to the project. The code reads `KV_REST_API_URL` /
+   `KV_REST_API_TOKEN` (or the `UPSTASH_REDIS_REST_*` names) automatically.
+4. Optional: add an env var `SESSION_SECRET` (any long random string) to
+   sign session cookies. Without it the Redis token is used.
+5. Optional: `MBANK_MAX_ACCOUNTS` (default 50) caps how many accounts can exist.
+6. Redeploy.
 
 ## Local development
 
@@ -45,27 +53,11 @@ npm install
 npm run dev
 ```
 
-To develop against the real shared database instead of a blank local one,
-link this folder to the Vercel project and pull its environment variables:
+Without Redis credentials, local dev keeps accounts in memory (they vanish
+on restart). To use the real database: `npx vercel link` then
+`npx vercel env pull .env.local`.
 
-```bash
-npx vercel link
-npx vercel env pull .env.local
-```
+## Not yet built
 
-Without that, the app still runs locally, but every save will show a
-"shared storage isn't configured yet" message, because there's no KV
-database to write to.
-
-## Known limitations
-
-- **No accounts/auth.** Anyone who opens the site can select and act as any
-  bank account — this mirrors how the original Claude Artifact version
-  worked (a shared community tool, not a secured multi-tenant system).
-- **Last-write-wins.** Two people saving at the exact same instant can have
-  one save overwrite the other; there's no locking. Fine for a small
-  community game server, worth knowing about at larger scale.
-- **Polling, not push.** Other players' changes show up within ~4 seconds,
-  not instantly. Good enough for this use case; swapping in something like
-  Vercel's real-time features or a WebSocket would remove the delay if it
-  ever matters.
+- Deposits, withdrawals and transfers between players
+- Admin tools (resetting a forgotten password, adjusting balances)

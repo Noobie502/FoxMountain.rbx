@@ -1,17 +1,47 @@
-import Script from "next/script";
+import { redirect } from "next/navigation";
+import { currentUsername } from "@/lib/auth";
+import AuthPanel from "./AuthPanel";
+import Emerald from "./Emerald";
 
-export default function Page() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  if (await currentUsername()) redirect("/account");
+
   return (
-    <>
-      <div id="app">
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 24px" }}>
-          <p style={{ color: "#8B93AD", fontFamily: "sans-serif" }}>Loading FoxMountain.rbx…</p>
+    <div className="shell">
+      <header className="topbar">
+        <span className="wordmark">
+          <Emerald size={22} />
+          M-Bank
+        </span>
+      </header>
+
+      <main className="home">
+        <div className="intro">
+          <p className="eyebrow">The server bank</p>
+          <h1>Keep your emeralds somewhere safer than a chest.</h1>
+          <p className="lede">
+            Open an M-Bank account with your Minecraft username. Every account is locked with its own password, so
+            only you can get in.
+          </p>
+          <ul className="facts">
+            <li>
+              <strong>One account per player</strong>
+              <span>Tied to your Minecraft username.</span>
+            </li>
+            <li>
+              <strong>Password required</strong>
+              <span>4–8 characters, set when you open the account.</span>
+            </li>
+            <li>
+              <strong>Locks after 5 wrong tries</strong>
+              <span>For 10 minutes, to stop guessing.</span>
+            </li>
+          </ul>
         </div>
-      </div>
-      {/* All interactive logic lives in one plain script, loaded after the
-          page is interactive — see public/app.js. It talks to /api/state
-          instead of Claude's artifact capability. */}
-      <Script src="/app.js" strategy="afterInteractive" />
-    </>
+        <AuthPanel />
+      </main>
+    </div>
   );
 }
