@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import { currentUsername } from "@/lib/auth";
+import { currentUsername, isDeveloper } from "@/lib/auth";
 import AuthPanel from "./AuthPanel";
 import Emerald from "./Emerald";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  if (await isDeveloper()) redirect("/dev");
   if (await currentUsername()) redirect("/account");
 
   return (

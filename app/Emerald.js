@@ -1,21 +1,21 @@
-// A small pixel-art emerald, drawn on an 8×8 grid so it stays crisp at any size.
-const PIXELS = [
-  "...LL...",
-  "..LMMD..",
-  ".LMHMMD.",
-  "LMHMMMMD",
-  "LMMMMMMD",
-  ".DMMMMD.",
-  "..DMMD..",
-  "...DD...",
-];
-const COLORS = { L: "#7ff2b4", M: "#2fcf7d", H: "#e9fff2", D: "#138a52" };
+// Pixel-art gems drawn on an 8×8 grid so they stay crisp at any size.
+const SHAPES = {
+  emerald: {
+    pixels: ["...LL...", "..LMMD..", ".LMHMMD.", "LMHMMMMD", "LMMMMMMD", ".DMMMMD.", "..DMMD..", "...DD..."],
+    colors: { L: "#7ff2b4", M: "#2fcf7d", H: "#e9fff2", D: "#138a52" },
+  },
+  diamond: {
+    pixels: ["........", ".LLLLLL.", "LHMMMMDL", "LMMMMMDD", ".LMMMDD.", "..LMDD..", "...DD...", "........"],
+    colors: { L: "#a8f3ee", M: "#4fd6d0", H: "#ffffff", D: "#1f9a9a" },
+  },
+};
 
-export default function Emerald({ size = 20, title }) {
+export function Gem({ kind = "emerald", size = 20, title }) {
+  const { pixels, colors } = SHAPES[kind];
   const rects = [];
-  PIXELS.forEach((row, y) =>
+  pixels.forEach((row, y) =>
     [...row].forEach((c, x) => {
-      if (COLORS[c]) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={COLORS[c]} />);
+      if (colors[c]) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={colors[c]} />);
     })
   );
   return (
@@ -32,4 +32,8 @@ export default function Emerald({ size = 20, title }) {
       {rects}
     </svg>
   );
+}
+
+export default function Emerald(props) {
+  return <Gem kind="emerald" {...props} />;
 }

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { currentUsername, publicAccount } from "@/lib/auth";
 import { getAccount, StorageNotConfiguredError } from "@/lib/store";
 import Emerald from "../Emerald";
+import { Activity, BalanceFigure } from "../Balance";
 import { CopyButton, PlayerHead, SignOutButton } from "./controls";
 
 export const dynamic = "force-dynamic";
@@ -59,11 +60,7 @@ export default async function AccountPage({ searchParams }) {
           <p id="balance-label" className="eyebrow">
             Balance
           </p>
-          <p className="balance">
-            <Emerald size={36} />
-            <span className="balance-figure">{account.balance.toLocaleString("en-US")}</span>
-            <span className="balance-unit">emeralds</span>
-          </p>
+          <BalanceFigure totalDiamonds={account.balanceDiamonds} />
           <dl className="details">
             <div>
               <dt>Account number</dt>
@@ -85,9 +82,9 @@ export default async function AccountPage({ searchParams }) {
           </dl>
         </section>
 
-        <section className="soon">
-          <h2>Coming next</h2>
-          <p>Deposits, withdrawals and transfers between players will show up here.</p>
+        <section className="activity-section">
+          <h2>Recent activity</h2>
+          <Activity history={account.history} emptyText="No changes yet. Emeralds and diamonds the developer adds will show up here." />
         </section>
       </main>
     </div>

@@ -14,11 +14,19 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
   one account per name, case-insensitive) and a mandatory password, 4–8
   characters, typed twice.
 - **Sign in / sign out** — a signed, HTTP-only session cookie that lasts 7 days.
-- **Account page** — player face, balance (in emeralds, starts at 0),
-  account number (`MB-1234-5678`), date opened.
+- **Account page** — player face, balance in emeralds and diamonds
+  (1 emerald = 10 diamonds, starts at 0), account number (`MB-1234-5678`),
+  date opened, and recent balance changes.
+- **Developer dashboard** (`/dev`) — "Sign in as developer" on the home
+  page. Lists every account, shows each player's password, and lets the
+  developer add or remove emeralds or diamonds. Only the developer can
+  change balances; players can't.
 - **Brute-force protection** — 5 wrong passwords in a row locks the account
   for 10 minutes. Short passwords are easy to guess, so this matters.
-- Passwords are hashed with scrypt; the plain password is never stored.
+- Passwords are hashed with scrypt for sign-in. A second copy is encrypted
+  (AES-256-GCM, keyed from the server secret) so the developer dashboard can
+  show it. The sign-up form tells players the developer can see passwords.
+- Balances are stored as whole diamonds (`balanceDiamonds`).
 
 ## How it's put together
 
@@ -26,6 +34,11 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 | --- | --- |
 | `app/page.js`, `app/AuthPanel.js` | Home page with the Open account / Sign in forms |
 | `app/account/` | The signed-in account page |
+| `app/dev/` | Developer dashboard |
+| `app/api/dev/session/route.js` | `POST` — developer sign-in, `DELETE` — sign out |
+| `app/api/dev/accounts/route.js` | `GET` — every account with passwords (developer only) |
+| `app/api/dev/accounts/[username]/route.js` | `POST` — add/remove emeralds or diamonds (developer only) |
+| `lib/money.js` | Emerald/diamond conversion and formatting |
 | `app/api/accounts/route.js` | `POST` — open an account |
 | `app/api/session/route.js` | `POST` — sign in, `DELETE` — sign out |
 | `lib/auth.js` | Validation rules, password hashing, session cookie |
@@ -44,7 +57,14 @@ Redis keys: `mbank:account:<username>` holds each account,
 4. Optional: add an env var `SESSION_SECRET` (any long random string) to
    sign session cookies. Without it the Redis token is used.
 5. Optional: `MBANK_MAX_ACCOUNTS` (default 50) caps how many accounts can exist.
-6. Redeploy.
+6. Optional: `DEV_USERNAME` / `DEV_PASSWORD` change the developer login.
+   Without them the defaults built into `lib/auth.js` apply (the password is
+   stored only as a scrypt hash, since this repo is public).
+7. Redeploy.
+
+> Don't change `SESSION_SECRET` (or swap the Redis database token) once
+> players have accounts: the developer view of existing passwords is
+> encrypted with it and would stop being readable.
 
 ## Local development
 
@@ -59,5 +79,5 @@ on restart). To use the real database: `npx vercel link` then
 
 ## Not yet built
 
-- Deposits, withdrawals and transfers between players
-- Admin tools (resetting a forgotten password, adjusting balances)
+- Transfers between players
+- Resetting a forgotten password from the developer dashboard

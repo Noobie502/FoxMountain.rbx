@@ -8,7 +8,7 @@ const PASSWORD_MIN = 4;
 const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
 
 export default function AuthPanel() {
-  const [mode, setMode] = useState("open"); // "open" | "signin"
+  const [mode, setMode] = useState("open"); // "open" | "signin" | "dev"
 
   return (
     <section className="panel" aria-label="Your M-Bank account">
@@ -37,21 +37,32 @@ export default function AuthPanel() {
         </button>
       </div>
       <div id="panel-form" role="tabpanel" aria-labelledby={mode === "open" ? "tab-open" : "tab-signin"}>
-        {mode === "open" ? <OpenAccountForm key="open" /> : <SignInForm key="signin" />}
+        {mode === "open" && <OpenAccountForm key="open" />}
+        {mode === "signin" && <SignInForm key="signin" />}
+        {mode === "dev" && <DevSignInForm key="dev" onCancel={() => setMode("signin")} />}
       </div>
+      {mode !== "dev" && (
+        <div className="dev-entry">
+          <button type="button" className="dev-link" onClick={() => setMode("dev")}>
+            Sign in as developer
+          </button>
+        </div>
+      )}
     </section>
   );
 }
 
-function PasswordField({ id, label, value, onChange, hint, autoComplete }) {
+function PasswordField({ id, label, value, onChange, hint, autoComplete, max = PASSWORD_MAX }) {
   const [shown, setShown] = useState(false);
   return (
     <div className="field">
       <div className="field-top">
         <label htmlFor={id}>{label}</label>
-        <span className={`count ${value.length === PASSWORD_MAX ? "count-full" : ""}`} aria-live="polite">
-          {value.length}/{PASSWORD_MAX}
-        </span>
+        {max && (
+          <span className={`count ${value.length === max ? "count-full" : ""}`} aria-live="polite">
+            {value.length}/{max}
+          </span>
+        )}
       </div>
       <div className="password-wrap">
         <input
@@ -59,7 +70,7 @@ function PasswordField({ id, label, value, onChange, hint, autoComplete }) {
           name={id}
           type={shown ? "text" : "password"}
           value={value}
-          maxLength={PASSWORD_MAX}
+          maxLength={max || undefined}
           autoComplete={autoComplete}
           required
           onChange={(e) => onChange(e.target.value)}
@@ -142,7 +153,10 @@ function OpenAccountForm() {
         onChange={setConfirm}
         autoComplete="new-password"
       />
-      <p className="notice">There's no password reset. Write it down somewhere safe.</p>
+      <p className="notice">
+        The M-Bank developer can see account passwords, so don't reuse one from anywhere else. There's no reset, so
+        write it down.
+      </p>
       {error && (
         <p className="error" role="alert">
           {error}
@@ -206,6 +220,66 @@ function SignInForm() {
       )}
       <button className="primary" type="submit" disabled={busy}>
         {busy ? "Signing in…" : "Sign in"}
+      </button>
+    </form>
+  );
+}
+
+function DevSignInForm({ onCancel }) {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault();
+    setError("");
+    if (!username.trim() || !password) return setError("Enter the developer username and password.");
+    setBusy(true);
+    try {
+      await post("/api/dev/session", { username: username.trim(), password });
+      router.push("/dev");
+      router.refresh();
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="form" onSubmit={submit} noValidate>
+      <p className="dev-heading">Developer sign-in</p>
+      <div className="field">
+        <label htmlFor="dev-username">Developer username</label>
+        <input
+          id="dev-username"
+          name="dev-username"
+          value={username}
+          autoComplete="username"
+          spellCheck={false}
+          required
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+      <PasswordField
+        id="dev-password"
+        label="Developer password"
+        value={password}
+        onChange={setPassword}
+        autoComplete="current-password"
+        max={null}
+      />
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <button className="primary dev-primary" type="submit" disabled={busy}>
+        {busy ? "Signing in…" : "Open developer dashboard"}
+      </button>
+      <button type="button" className="dev-link" onClick={onCancel}>
+        Back to player sign-in
       </button>
     </form>
   );

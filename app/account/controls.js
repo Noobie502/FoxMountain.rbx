@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export function SignOutButton() {
@@ -45,11 +45,17 @@ export function CopyButton({ text }) {
 }
 
 // The player's Minecraft face, with their initial as a fallback.
-export function PlayerHead({ username }) {
+export function PlayerHead({ username, size = 56 }) {
   const [failed, setFailed] = useState(false);
+  const img = useRef(null);
+  // An image that failed before React hydrated never fires onError, so check once on mount.
+  useEffect(() => {
+    const el = img.current;
+    if (el && el.complete && el.naturalWidth === 0) setFailed(true);
+  }, []);
   if (failed) {
     return (
-      <span className="head head-fallback" aria-hidden="true">
+      <span className="head head-fallback" style={{ width: size, height: size, fontSize: size / 2 }} aria-hidden="true">
         {username[0].toUpperCase()}
       </span>
     );
@@ -57,10 +63,12 @@ export function PlayerHead({ username }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
+      ref={img}
       className="head"
       src={`https://mc-heads.net/avatar/${encodeURIComponent(username)}/64`}
-      width={56}
-      height={56}
+      width={size}
+      height={size}
+      style={{ width: size, height: size }}
       alt=""
       onError={() => setFailed(true)}
     />

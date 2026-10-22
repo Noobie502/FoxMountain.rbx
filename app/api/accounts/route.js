@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  encryptPassword,
   hashPassword,
   newAccountNumber,
   publicAccount,
@@ -38,7 +39,9 @@ export async function POST(req) {
       username,
       accountNumber: newAccountNumber(),
       passwordHash: await hashPassword(password),
-      balance: 0,
+      passwordEncrypted: encryptPassword(password),
+      balanceDiamonds: 0,
+      history: [],
       createdAt: new Date().toISOString(),
       failedAttempts: 0,
       lockedUntil: null,
