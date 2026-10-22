@@ -1,13 +1,17 @@
 import { redirect } from "next/navigation";
 import { currentUsername, isDeveloper } from "@/lib/auth";
+import { getAccount } from "@/lib/store";
 import AuthPanel from "./AuthPanel";
 import Emerald from "./Emerald";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({ searchParams }) {
+  const closed = (await searchParams)?.closed === "1";
   if (await isDeveloper()) redirect("/dev");
-  if (await currentUsername()) redirect("/account");
+  const me = await currentUsername();
+  // Only skip to the account page if the account still exists (it may have been closed).
+  if (me && (await getAccount(me).catch(() => null))) redirect("/account");
 
   return (
     <div className="shell">
@@ -18,6 +22,11 @@ export default async function Home() {
         </span>
       </header>
 
+      {closed && (
+        <p className="welcome closed-banner" role="status">
+          Your account has been closed.
+        </p>
+      )}
       <main className="home">
         <div className="intro">
           <p className="eyebrow">The server bank</p>

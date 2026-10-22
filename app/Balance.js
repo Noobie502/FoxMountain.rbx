@@ -24,6 +24,24 @@ export function BalanceFigure({ totalDiamonds, size = "large" }) {
   );
 }
 
+function describe(h) {
+  const type = h.type ?? (h.action === "add" ? "dev-add" : "dev-remove");
+  switch (type) {
+    case "dev-add":
+      return "Added by the developer";
+    case "dev-remove":
+      return "Removed by the developer";
+    case "transfer-out":
+      return `Sent to ${h.counterparty}`;
+    case "transfer-in":
+      return `Received from ${h.counterparty}`;
+    case "withdraw":
+      return "Withdrawn";
+    default:
+      return "Balance change";
+  }
+}
+
 export function Activity({ history, emptyText }) {
   if (!history?.length) return <p className="activity-empty">{emptyText}</p>;
   return (
@@ -34,7 +52,7 @@ export function Activity({ history, emptyText }) {
             {h.deltaDiamonds >= 0 ? "+" : "−"}
             {formatAmount(h.amount, h.unit)}
           </span>
-          <span className="activity-what">{h.action === "add" ? "Added by the developer" : "Removed by the developer"}</span>
+          <span className="activity-what">{describe(h)}</span>
           <time dateTime={h.at}>
             {new Date(h.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
           </time>

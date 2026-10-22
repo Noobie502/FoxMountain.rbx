@@ -32,6 +32,7 @@ export default function DevDashboard({ initialAccounts }) {
   const [query, setQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [loadError, setLoadError] = useState("");
+  const [notice, setNotice] = useState("");
 
   const total = accounts.reduce((sum, a) => sum + a.balanceDiamonds, 0);
   const shown = useMemo(() => {
@@ -59,6 +60,13 @@ export default function DevDashboard({ initialAccounts }) {
     setAccounts((list) => list.map((a) => (a.username === updated.username ? updated : a)));
   }
 
+  function removeAccount(username) {
+    const next = accounts.filter((a) => a.username !== username);
+    setAccounts(next);
+    setSelected(next[0]?.username ?? null);
+    setNotice(`Deleted ${username}'s account.`);
+  }
+
   return (
     <main className="dev">
       <section className="dev-summary" aria-label="Bank totals">
@@ -75,6 +83,11 @@ export default function DevDashboard({ initialAccounts }) {
         </button>
       </section>
       {loadError && <p className="error">{loadError}</p>}
+      {notice && (
+        <p className="success" role="status">
+          {notice}
+        </p>
+      )}
 
       {accounts.length === 0 ? (
         <section className="dev-empty">
@@ -124,14 +137,14 @@ export default function DevDashboard({ initialAccounts }) {
             </ul>
           </section>
 
-          {current && <AccountDetail key={current.username} account={current} onUpdated={replaceAccount} />}
+          {current && <AccountDetail key={current.username} account={current} onUpdated={replaceAccount} onDeleted={removeAccount} />}
         </div>
       )}
     </main>
   );
 }
 
-function AccountDetail({ account, onUpdated }) {
+function AccountDetail({ account, onUpdated, onDeleted }) {
   const [showPassword, setShowPassword] = useState(false);
   const [amount, setAmount] = useState("");
   const [unit, setUnit] = useState("emeralds");
@@ -268,6 +281,69 @@ function AccountDetail({ account, onUpdated }) {
         <p className="adjust-title">Activity</p>
         <Activity history={account.history} emptyText="No balance changes yet." />
       </div>
+
+      <DeleteAccount account={account} onDeleted={onDeleted} />
     </section>
+  );
+}
+
+function DeleteAccount({ account, onDeleted }) {
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const matches = typed.trim().toLowerCase() === account.username.toLowerCase();
+
+  async function confirm(e) {
+    e.preventDefault();
+    if (!matches) return setError(`Type ${account.username} to confirm.`);
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/dev/accounts/${encodeURIComponent(account.username)}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok && res.status !== 404) throw new Error(data.error || "Couldn't delete the account.");
+      onDeleted(account.username);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="danger-zone">
+      <p className="adjust-title">Delete account</p>
+      {!open ? (
+        <>
+          <p className="muted">Removes {account.username}'s account, balance and history for good.</p>
+          <button type="button" className="danger danger-inline" onClick={() => setOpen(true)}>
+            Delete {account.username}
+          </button>
+        </>
+      ) : (
+        <form className="confirm-box" onSubmit={confirm} noValidate>
+          {account.balanceDiamonds > 0 && (
+            <p className="notice notice-warn">This account still holds {formatBalance(account.balanceDiamonds)}. It will be deleted too.</p>
+          )}
+          <div className="field">
+            <label htmlFor="delete-confirm">Type {account.username} to confirm</label>
+            <input id="delete-confirm" value={typed} spellCheck={false} autoComplete="off" onChange={(e) => setTyped(e.target.value)} />
+          </div>
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          <div className="adjust-actions">
+            <button type="button" className="ghost" onClick={() => { setOpen(false); setTyped(""); setError(""); }}>
+              Cancel
+            </button>
+            <button type="submit" className="danger danger-solid" disabled={busy || !matches}>
+              {busy ? "Deleting…" : "Delete permanently"}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { getAccount, StorageNotConfiguredError } from "@/lib/store";
 import Emerald from "../Emerald";
 import { Activity, BalanceFigure } from "../Balance";
 import { CopyButton, PlayerHead, SignOutButton } from "./controls";
+import { CloseAccount, MoneyActions } from "./MoneyActions";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your account · M-Bank" };
@@ -82,10 +83,14 @@ export default async function AccountPage({ searchParams }) {
           </dl>
         </section>
 
+        <MoneyActions balanceDiamonds={account.balanceDiamonds} />
+
         <section className="activity-section">
           <h2>Recent activity</h2>
-          <Activity history={account.history} emptyText="No changes yet. Emeralds and diamonds the developer adds will show up here." />
+          <Activity history={account.history} emptyText="No activity yet. Money you send, receive or withdraw shows up here." />
         </section>
+
+        <CloseAccount username={account.username} balanceDiamonds={account.balanceDiamonds} />
       </main>
     </div>
   );

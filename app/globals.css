@@ -419,6 +419,37 @@ input::placeholder { color: var(--muted); opacity: 0.7; }
 .danger:disabled { opacity: 0.5; cursor: not-allowed; }
 .success { font-size: 0.9375rem; color: var(--accent); background: var(--accent-soft); padding: 10px 12px; border-radius: var(--radius); }
 
+/* Player money panel */
+.money {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.money .form { gap: 16px; }
+.money .adjust-row input { background: var(--surface-2); }
+.label-like { font-weight: 600; font-size: 0.9375rem; }
+.hint-error { color: var(--danger); }
+
+/* Close / delete account */
+.danger-zone { display: grid; gap: 10px; padding-top: 20px; border-top: 1px dashed var(--line); justify-items: start; }
+.danger-zone h2 { font-size: 1rem; }
+.danger-inline { flex: none; padding: 9px 16px; }
+.danger-solid { background: var(--danger); color: var(--surface); border-color: var(--danger); }
+.danger-solid:hover:not(:disabled) { background: var(--danger); filter: brightness(1.08); }
+.confirm-box {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+}
+.confirm-box input { background: var(--surface); }
+.confirm-box .adjust-actions > * { flex: 1; }
+.notice-warn { border-left-color: var(--warn); background: var(--warn-soft); color: var(--ink); }
+.closed-banner { margin-top: 20px; }
+
 @media (max-width: 900px) {
   .dev-grid { grid-template-columns: minmax(0, 1fr); }
   .account-rows { max-height: 320px; }

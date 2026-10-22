@@ -16,11 +16,18 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 - **Sign in / sign out** — a signed, HTTP-only session cookie that lasts 7 days.
 - **Account page** — player face, balance in emeralds and diamonds
   (1 emerald = 10 diamonds, starts at 0), account number (`MB-1234-5678`),
-  date opened, and recent balance changes.
+  date opened, and recent activity.
+- **Send to a player** — players send emeralds or diamonds to another
+  account by username or account number.
+- **Withdraw** — players can take emeralds or diamonds out of their own account.
+- **Close account** — players can delete their own account (password required).
 - **Developer dashboard** (`/dev`) — "Sign in as developer" on the home
   page. Lists every account, shows each player's password, and lets the
-  developer add or remove emeralds or diamonds. Only the developer can
-  change balances; players can't.
+  developer add or remove emeralds or diamonds on any account, or delete an
+  account (type the username to confirm). Only the developer can add money;
+  players can only move or withdraw what they have.
+- **No double-spending** — every money move takes a short lock on the
+  accounts involved, so simultaneous requests can't spend the same emeralds twice.
 - **Brute-force protection** — 5 wrong passwords in a row locks the account
   for 10 minutes. Short passwords are easy to guess, so this matters.
 - Passwords are hashed with scrypt for sign-in. A second copy is encrypted
@@ -38,6 +45,9 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 | `app/api/dev/session/route.js` | `POST` — developer sign-in, `DELETE` — sign out |
 | `app/api/dev/accounts/route.js` | `GET` — every account with passwords (developer only) |
 | `app/api/dev/accounts/[username]/route.js` | `POST` — add/remove emeralds or diamonds (developer only) |
+| `app/api/me/route.js` | `DELETE` — close your own account (password required) |
+| `app/api/me/transfer/route.js` | `POST` — send to another player |
+| `app/api/me/withdraw/route.js` | `POST` — withdraw from your own account |
 | `lib/money.js` | Emerald/diamond conversion and formatting |
 | `app/api/accounts/route.js` | `POST` — open an account |
 | `app/api/session/route.js` | `POST` — sign in, `DELETE` — sign out |
@@ -79,5 +89,4 @@ on restart). To use the real database: `npx vercel link` then
 
 ## Not yet built
 
-- Transfers between players
 - Resetting a forgotten password from the developer dashboard
