@@ -486,6 +486,7 @@ input::placeholder { color: var(--muted); opacity: 0.7; }
 .nav-link[aria-current="page"] { background: var(--surface); color: var(--ink); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--line); }
 .nav-link[aria-current="page"] .nav-icon { color: var(--accent); }
 .nav-icon { flex: none; }
+.nav-short { display: none; }
 .app-main { min-width: 0; }
 .page-title { font-size: 1.75rem; font-weight: 700; }
 
@@ -603,19 +604,90 @@ input::placeholder { color: var(--muted); opacity: 0.7; }
 @media (max-width: 820px) {
   .app-body { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .sidebar { position: static; padding-top: 12px; }
-  .sidebar ul { grid-template-columns: 1fr 1fr; }
+  .sidebar ul { display: flex; overflow-x: auto; gap: 2px; scrollbar-width: none; }
+  .sidebar li { flex: 1 0 auto; }
+  .job-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .notes-read { padding: 18px 16px; }
   .nav-link { justify-content: center; border-left: 0; border-bottom: 3px solid transparent; border-radius: var(--radius) var(--radius) 0 0; }
   .nav-link[aria-current="page"] { border-bottom-color: var(--accent); box-shadow: none; }
   .listing-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 480px) {
-  .nav-link { font-size: 0.875rem; padding: 10px 6px; gap: 6px; }
+  .nav-link { font-size: 0.875rem; padding: 10px 8px; gap: 6px; white-space: nowrap; }
+  .nav-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .nav-short { display: inline; }
   .field-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .field-row .field:last-child { grid-column: 1 / -1; }
   .owned li { grid-template-columns: 56px minmax(0, 1fr); }
   .owned-price { grid-column: 2; text-align: left; }
   .market-balance { text-align: left; }
   .listing-form { padding: 18px 16px; }
+}
+
+/* Shared text areas and selects */
+textarea, .select {
+  width: 100%;
+  padding: 11px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 1rem;
+  color: inherit;
+}
+textarea { resize: vertical; line-height: 1.5; }
+textarea:focus, .select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.select { width: auto; flex: 0 0 auto; min-height: 44px; }
+
+/* Jobs */
+.jobs { display: grid; gap: 24px; padding-top: 24px; }
+.job-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.job {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: grid;
+  gap: 10px;
+}
+.job-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px 24px; flex-wrap: wrap; }
+.job-heading { display: grid; gap: 2px; min-width: 0; }
+.job-title { font-size: 1.125rem; overflow-wrap: anywhere; }
+.job-location { color: var(--muted); font-size: 0.9375rem; }
+.job-pay { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.job-pay strong { font-size: 1.0625rem; }
+.job-description { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 72ch; }
+.job-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--line); font-size: 0.875rem; }
+.job-foot .house-confirm span { margin-right: 4px; }
+.job-form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.job-pay-field, .job-desc-field { grid-column: 1 / -1; }
+
+/* Notes */
+.notes { display: grid; gap: 20px; padding-top: 24px; }
+.notes-updated { font-size: 0.875rem; }
+.notes-editor { display: grid; gap: 12px; }
+.notes-box {
+  min-height: 60vh;
+  background: var(--surface);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 18px 20px;
+}
+.notes-bar { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; font-size: 0.875rem; }
+.notes-actions { margin-left: auto; display: flex; gap: 10px; }
+.notes-ok { color: var(--accent); font-weight: 600; }
+.notes-error { color: var(--danger); font-weight: 600; }
+.conflict { display: grid; gap: 10px; }
+.conflict .adjust-actions > * { flex: 1; }
+.notes-read {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+  font-size: 1.0625rem;
 }
 
 @media (max-width: 900px) {

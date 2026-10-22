@@ -26,8 +26,16 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
   developer add or remove emeralds or diamonds on any account, or delete an
   account (type the username to confirm). Only the developer can add money;
   players can only move or withdraw what they have.
-- **Sidebar** on every signed-in page: Housing market, then My account
-  (players) or Developer dashboard (developer). Becomes a tab bar on phones.
+- **Sidebar** on every signed-in page: Housing market, Jobs, Notes, then
+  My account (players) or Developer dashboard (developer). Becomes a tab bar
+  on phones.
+- **Jobs** (`/jobs`) — the developer posts job listings (title, pay in
+  emeralds or diamonds per shift/hour/day/week or one-off, optional
+  location, description) and removes them. Everyone signed in can browse.
+- **Notes** (`/notes`) — one shared page of notes. Everyone signed in can
+  read it; only the developer can edit and save it. The only size limit is
+  the database's ~1 MB per write (about 800,000 characters). Saving over a
+  version changed in another tab asks before replacing it.
 - **Housing market** (`/market`) — the developer lists properties with a
   required picture, bedrooms, bathrooms, square feet, address and price
   (emeralds or diamonds), and can remove listings. Players browse and **buy**:
@@ -62,6 +70,10 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 | `app/api/houses/[id]/buy/route.js` | `POST` — buy a property (players) |
 | `app/api/houses/[id]/image/route.js` | `GET` — a listing's picture |
 | `lib/houses.js` | Listing validation |
+| `app/jobs/`, `app/api/jobs/` | Jobs page; `GET`/`POST` jobs, `DELETE` a job (developer) |
+| `app/notes/`, `app/api/notes/` | Notes page; `GET` notes, `PUT` notes (developer) |
+| `lib/jobs.js` | Job validation |
+| `lib/viewer.js` | Who's signed in on a page |
 | `lib/money.js` | Emerald/diamond conversion and formatting |
 | `app/api/accounts/route.js` | `POST` — open an account |
 | `app/api/session/route.js` | `POST` — sign in, `DELETE` — sign out |
@@ -72,6 +84,7 @@ Redis keys: `mbank:account:<username>` holds each account,
 `mbank:usernames` is the set of all usernames, `mbank:house:<id>` and
 `mbank:houses` hold listings, and `mbank:house-image:<id>` holds each
 listing's picture (resized in the browser to under ~600 KB).
+`mbank:job:<id>` / `mbank:jobs` hold jobs, and `mbank:notes` holds the notes.
 
 ## Deploying
 

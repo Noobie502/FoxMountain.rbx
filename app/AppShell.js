@@ -18,6 +18,8 @@ function PixelIcon({ rows, color = "currentColor" }) {
 }
 
 const HOUSE = ["...##...", "..####..", ".######.", "########", ".#....#.", ".#.##.#.", ".#.##.#.", ".######."];
+const PICK = ["....###.", "...#..##", "......##", ".....#.#", "....#...", "...#....", "..#.....", ".#......"];
+const NOTE = [".######.", ".#....##", ".#.##..#", ".#.....#", ".#.###.#", ".#.....#", ".#.##..#", ".#######"];
 const VAULT = ["########", "#......#", "#.####.#", "#.#..#.#", "#.#..#.#", "#.####.#", "#......#", "########"];
 
 // Every signed-in page uses this frame: top bar + sidebar (a tab bar on phones).
@@ -25,9 +27,12 @@ const VAULT = ["########", "#......#", "#.####.#", "#.#..#.#", "#.#..#.#", "#.##
 export default function AppShell({ role, active, children }) {
   const bankHref = role === "developer" ? "/dev" : "/account";
   const bankLabel = role === "developer" ? "Developer dashboard" : "My account";
+  const bankShort = role === "developer" ? "Dashboard" : "Account";
   const items = [
-    { key: "market", href: "/market", label: "Housing market", icon: HOUSE },
-    { key: "bank", href: bankHref, label: bankLabel, icon: VAULT },
+    { key: "market", href: "/market", label: "Housing market", short: "Market", icon: HOUSE },
+    { key: "jobs", href: "/jobs", label: "Jobs", icon: PICK },
+    { key: "notes", href: "/notes", label: "Notes", icon: NOTE },
+    { key: "bank", href: bankHref, label: bankLabel, short: bankShort, icon: VAULT },
   ];
 
   return (
@@ -47,7 +52,10 @@ export default function AppShell({ role, active, children }) {
               <li key={item.key}>
                 <Link href={item.href} className="nav-link" aria-current={active === item.key ? "page" : undefined}>
                   <PixelIcon rows={item.icon} />
-                  <span>{item.label}</span>
+                  <span className="nav-full">{item.label}</span>
+                  <span className="nav-short" aria-hidden="true">
+                    {item.short ?? item.label}
+                  </span>
                 </Link>
               </li>
             ))}
