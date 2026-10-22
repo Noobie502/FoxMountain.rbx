@@ -37,6 +37,8 @@ function describe(h) {
       return `Received from ${h.counterparty}`;
     case "withdraw":
       return "Withdrawn";
+    case "house-purchase":
+      return `Bought ${h.counterparty}`;
     default:
       return "Balance change";
   }

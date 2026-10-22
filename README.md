@@ -26,6 +26,13 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
   developer add or remove emeralds or diamonds on any account, or delete an
   account (type the username to confirm). Only the developer can add money;
   players can only move or withdraw what they have.
+- **Sidebar** on every signed-in page: Housing market, then My account
+  (players) or Developer dashboard (developer). Becomes a tab bar on phones.
+- **Housing market** (`/market`) — the developer lists properties with a
+  required picture, bedrooms, bathrooms, square feet, address and price
+  (emeralds or diamonds), and can remove listings. Players browse and **buy**:
+  the price leaves their account, the house is marked sold to them and shows
+  as "Yours". Two players can't buy the same house.
 - **No double-spending** — every money move takes a short lock on the
   accounts involved, so simultaneous requests can't spend the same emeralds twice.
 - **Brute-force protection** — 5 wrong passwords in a row locks the account
@@ -48,6 +55,13 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 | `app/api/me/route.js` | `DELETE` — close your own account (password required) |
 | `app/api/me/transfer/route.js` | `POST` — send to another player |
 | `app/api/me/withdraw/route.js` | `POST` — withdraw from your own account |
+| `app/AppShell.js` | Top bar + sidebar used by every signed-in page |
+| `app/market/` | Housing market page, listing form, buy flow |
+| `app/api/houses/route.js` | `GET` — listings (signed in), `POST` — new listing (developer) |
+| `app/api/houses/[id]/route.js` | `DELETE` — remove a listing (developer) |
+| `app/api/houses/[id]/buy/route.js` | `POST` — buy a property (players) |
+| `app/api/houses/[id]/image/route.js` | `GET` — a listing's picture |
+| `lib/houses.js` | Listing validation |
 | `lib/money.js` | Emerald/diamond conversion and formatting |
 | `app/api/accounts/route.js` | `POST` — open an account |
 | `app/api/session/route.js` | `POST` — sign in, `DELETE` — sign out |
@@ -55,7 +69,9 @@ Built with Next.js and deployed on Vercel, with accounts stored in Redis
 | `lib/store.js` | Redis access (falls back to memory in local dev) |
 
 Redis keys: `mbank:account:<username>` holds each account,
-`mbank:usernames` is the set of all usernames.
+`mbank:usernames` is the set of all usernames, `mbank:house:<id>` and
+`mbank:houses` hold listings, and `mbank:house-image:<id>` holds each
+listing's picture (resized in the browser to under ~600 KB).
 
 ## Deploying
 

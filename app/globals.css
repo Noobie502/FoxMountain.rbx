@@ -450,6 +450,174 @@ input::placeholder { color: var(--muted); opacity: 0.7; }
 .notice-warn { border-left-color: var(--warn); background: var(--warn-soft); color: var(--ink); }
 .closed-banner { margin-top: 20px; }
 
+
+/* App frame: top bar + sidebar on every signed-in page */
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-block: 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.app-topbar .wordmark { color: inherit; text-decoration: none; }
+.app-body { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 32px; align-items: start; }
+.sidebar { position: sticky; top: env(safe-area-inset-top, 0px); padding-top: 24px; }
+.sidebar ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { background: var(--surface); color: var(--ink); }
+.nav-link[aria-current="page"] { background: var(--surface); color: var(--ink); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--line); }
+.nav-link[aria-current="page"] .nav-icon { color: var(--accent); }
+.nav-icon { flex: none; }
+.app-main { min-width: 0; }
+.page-title { font-size: 1.75rem; font-weight: 700; }
+
+/* Housing market */
+.market-balance { display: grid; gap: 2px; text-align: right; font-variant-numeric: tabular-nums; }
+.house-sold .house-photo img { filter: saturate(0.6); }
+.house-status.status-sold { background: var(--muted); color: var(--surface); }
+.house-status.status-mine { background: var(--dev); color: var(--surface); }
+.house-owner { font-size: 0.875rem; color: var(--muted); }
+.buy-box { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); margin-top: 4px; }
+.buy-box > .primary { width: 100%; }
+.buy-box > .primary:disabled {
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  opacity: 1;
+  cursor: not-allowed;
+}
+.buy-confirm { display: grid; gap: 10px; font-size: 0.9375rem; }
+.buy-confirm .adjust-actions > * { flex: 1; }
+.owned { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.owned li { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.owned img { width: 64px; height: 48px; object-fit: cover; border-radius: 4px; background: var(--surface-2); }
+.owned-main { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.owned-price { font-size: 0.875rem; font-weight: 600; text-align: right; }
+.activity-empty a { color: var(--accent); font-weight: 600; }
+.market { display: grid; gap: 24px; padding-top: 24px; }
+.market-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.market-empty {
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 32px;
+  color: var(--muted);
+  max-width: 60ch;
+}
+.house-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 20px;
+}
+.house {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.house-photo { position: relative; aspect-ratio: 4 / 3; max-width: 100%; background: var(--surface-2); }
+.house-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.house-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+.house-body { display: grid; gap: 8px; padding: 16px; align-content: start; }
+.house-price { display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.house-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--muted); font-size: 0.9375rem; }
+.house-stats strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.house-stats li + li { padding-left: 14px; border-left: 1px solid var(--line); }
+.house-address { font-weight: 500; overflow-wrap: anywhere; }
+.house-admin { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); margin-top: 4px; }
+.text-danger { background: none; border: 0; padding: 0; color: var(--danger); font-weight: 600; font-size: 0.875rem; cursor: pointer; justify-self: start; }
+.text-danger:hover { text-decoration: underline; }
+.house-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.875rem; }
+.house-confirm span { margin-right: auto; }
+.ghost-sm, .danger-sm { padding: 6px 12px; font-size: 0.875rem; flex: none; }
+
+.listing-form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+.listing-title { font-size: 1.125rem; }
+.listing-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+.listing-fields { display: grid; gap: 16px; min-width: 0; }
+.field-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.listing-form input { background: var(--surface-2); }
+.photo-drop {
+  aspect-ratio: 4 / 3;
+  max-width: 100%;
+  width: 100%;
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+.photo-drop:hover { border-color: var(--accent); color: var(--accent); }
+.photo-drop.has-photo { border-style: solid; }
+.photo-drop img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.listing-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+@media (max-width: 820px) {
+  .app-body { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sidebar { position: static; padding-top: 12px; }
+  .sidebar ul { grid-template-columns: 1fr 1fr; }
+  .nav-link { justify-content: center; border-left: 0; border-bottom: 3px solid transparent; border-radius: var(--radius) var(--radius) 0 0; }
+  .nav-link[aria-current="page"] { border-bottom-color: var(--accent); box-shadow: none; }
+  .listing-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .nav-link { font-size: 0.875rem; padding: 10px 6px; gap: 6px; }
+  .field-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .field-row .field:last-child { grid-column: 1 / -1; }
+  .owned li { grid-template-columns: 56px minmax(0, 1fr); }
+  .owned-price { grid-column: 2; text-align: left; }
+  .market-balance { text-align: left; }
+  .listing-form { padding: 18px 16px; }
+}
+
 @media (max-width: 900px) {
   .dev-grid { grid-template-columns: minmax(0, 1fr); }
   .account-rows { max-height: 320px; }

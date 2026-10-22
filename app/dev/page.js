@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { developerAccount, devUsername, isDeveloper } from "@/lib/auth";
+import { developerAccount, isDeveloper } from "@/lib/auth";
 import { listAccounts, StorageNotConfiguredError } from "@/lib/store";
-import Emerald from "../Emerald";
-import DevDashboard, { DevSignOut } from "./DevDashboard";
+import AppShell from "../AppShell";
+import DevDashboard from "./DevDashboard";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Developer · M-Bank" };
@@ -20,19 +20,8 @@ export default async function DevPage() {
   }
 
   return (
-    <div className="shell shell-wide">
-      <header className="topbar">
-        <span className="wordmark">
-          <Emerald size={22} />
-          M-Bank
-          <span className="dev-badge">Developer</span>
-        </span>
-        <span className="topbar-right">
-          <span className="signed-in-as">Signed in as {devUsername()}</span>
-          <DevSignOut />
-        </span>
-      </header>
+    <AppShell role="developer" active="bank">
       {storageError ? <p className="error page-error">{storageError}</p> : <DevDashboard initialAccounts={accounts} />}
-    </div>
+    </AppShell>
   );
 }
